@@ -19,6 +19,7 @@ the model in directions the paper shows are robust to relearning attacks.
 
 import copy
 import torch
+import bitsandbytes as bnb
 from torch.utils.data import DataLoader
 from src.data_utils import format_qa
 from src.unlearn.mcu import extract_principal_components, project_minor, get_mlp_module
@@ -51,7 +52,16 @@ def unlearn_rmu(model, tokenizer, forget_ds, retain_ds, layer_idx=-1, c=6.0, lr=
     ref_handle = ref_mlp_module.register_forward_hook(ref_hook)
 
     model.train()
-    optim = torch.optim.AdamW(model.parameters(), lr=lr)
+    # NOTE: no gradient_checkpointing_enable() here -- this method's loss is
+    # built from a hook-captured raw activation (captured["h"]), a side
+    # channel outside the model's returned/tracked output, and HF's
+    # checkpointing reruns the hooked region untracked on the initial
+    # forward, so that captured tensor risks losing its grad_fn. Memory
+    # instead comes from 8-bit AdamW (~4x smaller optimizer state than
+    # plain AdamW) plus keeping base_model off the GPU between iterations
+    # (see the notebook) -- rmu already carries a second full model copy
+    # (ref_model) so it needs that headroom back too.
+    optim = bnb.optim.AdamW8bit(model.parameters(), lr=lr)
 
     forget_tok = forget_ds.map(lambda ex: format_qa(ex, tokenizer), batched=False)
     forget_tok.set_format(type="torch", columns=["input_ids", "attention_mask"])

@@ -32,6 +32,7 @@ paper's NPO baseline computes those terms.
 
 import copy
 import torch
+import bitsandbytes as bnb
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from src.data_utils import format_qa
@@ -72,8 +73,17 @@ def unlearn_npo_mcu(model, tokenizer, forget_ds, retain_ds, layer_idx=-1, lr=1e-
     hook_obj = _MinorComponentHook(mcu_stats["mean"], mcu_stats["components"])
     handle = mlp_module.register_forward_hook(hook_obj)
 
+    # NOTE: deliberately NOT using gradient_checkpointing_enable() here.
+    # HF's checkpointing runs each decoder layer's forward once "for real"
+    # (untracked) and only reconstructs it under grad during backward: fine
+    # for out.loss/out.logits (the checkpoint's own tracked return value),
+    # but risky to reason about for a hook this deep in the stack. Keeping
+    # a second full fp16 model (ref_model) is what actually needs the
+    # memory back, so that comes from 8-bit AdamW instead (~4x smaller
+    # optimizer state than plain AdamW) plus keeping base_model off the GPU
+    # between iterations (see the notebook).
     model.train()
-    optim = torch.optim.AdamW(model.parameters(), lr=lr)
+    optim = bnb.optim.AdamW8bit(model.parameters(), lr=lr)
 
     forget_tok = forget_ds.map(lambda ex: format_qa(ex, tokenizer), batched=False)
     forget_tok.set_format(type="torch", columns=["input_ids", "attention_mask"])

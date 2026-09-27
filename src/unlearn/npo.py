@@ -18,6 +18,7 @@ the forget answer, i.e. exactly the DPO negative term with only the forget
 
 import copy
 import torch
+import bitsandbytes as bnb
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from src.data_utils import format_qa
@@ -38,13 +39,18 @@ def _answer_logprob(model, input_ids, attn_mask, prompt_len):
 def unlearn_npo(model, tokenizer, forget_ds, retain_ds=None, lr=1e-5, epochs=3,
                  batch_size=4, beta=0.1, retain_weight=1.0, device="cuda"):
     model.to(device)
+    # NPO keeps both the trained model and a frozen reference copy on the GPU
+    # at once. Gradient checkpointing + 8-bit AdamW (see grad_ascent.py) claw
+    # back enough headroom on a T4 for that second full-size copy to fit.
+    model.gradient_checkpointing_enable()
+    model.config.use_cache = False
     model.train()
     ref_model = copy.deepcopy(model).to(device)
     ref_model.eval()
     for p in ref_model.parameters():
         p.requires_grad_(False)
 
-    optim = torch.optim.AdamW(model.parameters(), lr=lr)
+    optim = bnb.optim.AdamW8bit(model.parameters(), lr=lr)
 
     forget_tok = forget_ds.map(lambda ex: format_qa(ex, tokenizer), batched=False)
     forget_tok.set_format(type="torch", columns=["input_ids", "attention_mask"])
@@ -101,4 +107,5 @@ def unlearn_npo(model, tokenizer, forget_ds, retain_ds=None, lr=1e-5, epochs=3,
             msg += f" retain-loss {total_r/n:.4f}"
         print(msg)
 
+    model.config.use_cache = True
     return model

@@ -21,6 +21,7 @@ resists relearning attacks.
 
 import copy
 import torch
+import bitsandbytes as bnb
 from torch.utils.data import DataLoader
 from src.data_utils import format_qa
 from src.unlearn.mcu import extract_principal_components, project_minor, get_mlp_module
@@ -53,7 +54,13 @@ def unlearn_mlp_breaking(model, tokenizer, forget_ds, retain_ds, layer_idx=-1, l
     ref_handle = ref_mlp_module.register_forward_hook(ref_hook)
 
     model.train()
-    optim = torch.optim.AdamW(model.parameters(), lr=lr)
+    # NOTE: no gradient_checkpointing_enable() -- same reasoning as rmu.py,
+    # this method's loss is built from hook-captured raw activations
+    # (captured["h"]/captured["h_ref"]) outside the model's tracked output.
+    # 8-bit AdamW + keeping base_model off the GPU between iterations
+    # (see the notebook) cover the memory this method's extra ref_model
+    # copy needs instead.
+    optim = bnb.optim.AdamW8bit(model.parameters(), lr=lr)
 
     forget_tok = forget_ds.map(lambda ex: format_qa(ex, tokenizer), batched=False)
     forget_tok.set_format(type="torch", columns=["input_ids", "attention_mask"])

@@ -10,6 +10,7 @@ loss = -loss(forget_batch) + lambda * loss(retain_batch)
 """
 
 import torch
+import bitsandbytes as bnb
 from torch.utils.data import DataLoader
 from src.data_utils import format_qa
 
@@ -17,8 +18,14 @@ from src.data_utils import format_qa
 def unlearn_grad_diff(model, tokenizer, forget_ds, retain_ds, lr=1e-5, epochs=3,
                        batch_size=4, retain_weight=1.0, device="cuda"):
     model.to(device)
+    # See grad_ascent.py -- gradient checkpointing + 8-bit AdamW keep a full
+    # fp16 fine-tune of a 1.3B model under a T4's ~14.56GB budget; grad_diff
+    # runs two forward passes per step (forget + retain) so it needs the
+    # activation savings even more than the plain-ascent baseline.
+    model.gradient_checkpointing_enable()
+    model.config.use_cache = False
     model.train()
-    optim = torch.optim.AdamW(model.parameters(), lr=lr)
+    optim = bnb.optim.AdamW8bit(model.parameters(), lr=lr)
 
     forget_tok = forget_ds.map(lambda ex: format_qa(ex, tokenizer), batched=False)
     forget_tok.set_format(type="torch", columns=["input_ids", "attention_mask"])
@@ -60,4 +67,5 @@ def unlearn_grad_diff(model, tokenizer, forget_ds, retain_ds, lr=1e-5, epochs=3,
         print(f"[grad_diff] epoch {epoch+1}/{epochs} forget-loss {total_f/n:.4f} "
               f"(want rising) retain-loss {total_r/n:.4f} (want low/flat)")
 
+    model.config.use_cache = True
     return model

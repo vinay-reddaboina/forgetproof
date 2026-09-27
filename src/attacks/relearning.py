@@ -17,6 +17,7 @@ Protocol:
 
 import copy
 import torch
+import bitsandbytes as bnb
 from torch.utils.data import DataLoader
 from src.data_utils import format_qa, held_out_split
 from src.eval.metrics import sequence_loss
@@ -50,7 +51,11 @@ def relearning_attack(unlearned_model, tokenizer, forget_ds, device="cuda",
     tokenized = relearn_ds.map(lambda ex: format_qa(ex, tokenizer), batched=False)
     tokenized.set_format(type="torch", columns=["input_ids", "attention_mask"])
     loader = DataLoader(tokenized, batch_size=batch_size, shuffle=True)
-    optim = torch.optim.AdamW(attack_model.parameters(), lr=lr)
+    # This attack runs after every unlearning method, on top of whatever
+    # else is still on the GPU (the just-unlearned model, possibly
+    # unlearned_models kept for diagnostics) -- 8-bit AdamW keeps its own
+    # deepcopy + optimizer state from tipping a T4 over budget too.
+    optim = bnb.optim.AdamW8bit(attack_model.parameters(), lr=lr)
 
     for epoch in range(relearn_epochs):
         for batch in loader:
