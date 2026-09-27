@@ -34,7 +34,7 @@ def load_tofu_real_authors():
     'genuinely unseen / not memorized' comparison set for membership inference
     and to check the model didn't just get generally worse (utility check).
     """
-    return load_dataset("locuslab/TOFU", "real_authors_perturbed")["train"]
+    return load_dataset("locuslab/TOFU", "real_authors")["train"]
 
 
 def format_qa(example, tokenizer, max_length=256):
@@ -44,6 +44,27 @@ def format_qa(example, tokenizer, max_length=256):
     text = f"Question: {example['question']}\nAnswer: {example['answer']}"
     enc = tokenizer(text, truncation=True, max_length=max_length, padding="max_length")
     return enc
+
+
+def group_by_author_block(forget_ds, block_size=20, max_authors=10, questions_per_author=10):
+    """
+    TOFU's QA pairs have NO explicit author/id column, but each split is built
+    from consecutive, unshuffled blocks of `block_size` questions per
+    fictitious author (verified against the HF dataset: forget10's first 20
+    rows are all about one author, rows 20-39 the next, etc). This groups the
+    unshuffled forget set back into per-author question lists for the
+    representation-probe attack.
+
+    IMPORTANT: only call this on an unshuffled split (don't call after
+    .shuffle()) or the block boundaries won't line up with real authors.
+    """
+    n_authors = min(max_authors, len(forget_ds) // block_size)
+    groups = {}
+    for i in range(n_authors):
+        block = forget_ds.select(range(i * block_size, i * block_size + block_size))
+        author_label = f"author_{i}"
+        groups[author_label] = [ex["question"] for ex in block][:questions_per_author]
+    return groups
 
 
 def held_out_split(forget_ds, holdout_frac=0.2, seed=42):
