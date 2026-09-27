@@ -2,37 +2,73 @@
 // placeholder sample data so the dashboard is viewable before real Colab
 // results exist. Real numbers overwrite this file once you run:
 //   python dashboard/build_data.py
+// Values below are illustrative only, shaped to show the pattern the base
+// paper (arXiv:2605.11685) reports: each +MCU variant should score lower
+// (better) than its baseline on every attack column, while staying close on
+// model utility loss.
 window.FORGETPROOF_RESULTS = {
   "grad_ascent": {
     "method": "grad_ascent",
-    "relearning_attack": { "recovery_score": 0.86, "pre_attack_holdout_loss": 4.1, "post_attack_holdout_loss": 0.9 },
-    "membership_inference": { "leak_score": 0.71, "forget_mean_loss": 1.2, "unseen_mean_loss": 4.0 },
-    "rephrase_extraction": { "leak_rate": 0.62 },
-    "representation_probe": { "probe_accuracy": 0.78, "chance_accuracy": 0.1, "above_chance": 0.68 },
-    "model_utility_loss": 3.4
+    "relearning_attack": { "recovery_score": 0.88 },
+    "membership_inference": { "leak_score": 0.74 },
+    "rephrase_extraction": { "leak_rate": 0.65 },
+    "representation_probe": { "above_chance": 0.71 },
+    "model_utility_loss": 3.6
   },
   "grad_diff": {
     "method": "grad_diff",
-    "relearning_attack": { "recovery_score": 0.64, "pre_attack_holdout_loss": 4.0, "post_attack_holdout_loss": 1.6 },
-    "membership_inference": { "leak_score": 0.48, "forget_mean_loss": 2.3, "unseen_mean_loss": 4.1 },
-    "rephrase_extraction": { "leak_rate": 0.44 },
-    "representation_probe": { "probe_accuracy": 0.61, "chance_accuracy": 0.1, "above_chance": 0.51 },
+    "relearning_attack": { "recovery_score": 0.66 },
+    "membership_inference": { "leak_score": 0.50 },
+    "rephrase_extraction": { "leak_rate": 0.46 },
+    "representation_probe": { "above_chance": 0.53 },
     "model_utility_loss": 1.9
   },
   "npo": {
     "method": "npo",
-    "relearning_attack": { "recovery_score": 0.52, "pre_attack_holdout_loss": 4.0, "post_attack_holdout_loss": 2.0 },
-    "membership_inference": { "leak_score": 0.37, "forget_mean_loss": 2.7, "unseen_mean_loss": 4.0 },
-    "rephrase_extraction": { "leak_rate": 0.33 },
-    "representation_probe": { "probe_accuracy": 0.55, "chance_accuracy": 0.1, "above_chance": 0.45 },
-    "model_utility_loss": 1.5
+    "relearning_attack": { "recovery_score": 0.57 },
+    "membership_inference": { "leak_score": 0.41 },
+    "rephrase_extraction": { "leak_rate": 0.36 },
+    "representation_probe": { "above_chance": 0.48 },
+    "model_utility_loss": 1.6
   },
-  "rc_npo": {
-    "method": "rc_npo",
-    "relearning_attack": { "recovery_score": 0.24, "pre_attack_holdout_loss": 4.0, "post_attack_holdout_loss": 3.2 },
-    "membership_inference": { "leak_score": 0.15, "forget_mean_loss": 3.5, "unseen_mean_loss": 4.0 },
+  "npo_mcu": {
+    "method": "npo_mcu",
+    "relearning_attack": { "recovery_score": 0.31 },
+    "membership_inference": { "leak_score": 0.22 },
+    "rephrase_extraction": { "leak_rate": 0.19 },
+    "representation_probe": { "above_chance": 0.17 },
+    "model_utility_loss": 1.7
+  },
+  "rmu": {
+    "method": "rmu",
+    "relearning_attack": { "recovery_score": 0.53 },
+    "membership_inference": { "leak_score": 0.39 },
+    "rephrase_extraction": { "leak_rate": 0.34 },
+    "representation_probe": { "above_chance": 0.44 },
+    "model_utility_loss": 2.1
+  },
+  "rmu_mcu": {
+    "method": "rmu_mcu",
+    "relearning_attack": { "recovery_score": 0.26 },
+    "membership_inference": { "leak_score": 0.18 },
+    "rephrase_extraction": { "leak_rate": 0.16 },
+    "representation_probe": { "above_chance": 0.12 },
+    "model_utility_loss": 1.8
+  },
+  "mlp_breaking": {
+    "method": "mlp_breaking",
+    "relearning_attack": { "recovery_score": 0.49 },
+    "membership_inference": { "leak_score": 0.35 },
+    "rephrase_extraction": { "leak_rate": 0.30 },
+    "representation_probe": { "above_chance": 0.40 },
+    "model_utility_loss": 1.7
+  },
+  "mlp_breaking_mcu": {
+    "method": "mlp_breaking_mcu",
+    "relearning_attack": { "recovery_score": 0.21 },
+    "membership_inference": { "leak_score": 0.14 },
     "rephrase_extraction": { "leak_rate": 0.12 },
-    "representation_probe": { "probe_accuracy": 0.19, "chance_accuracy": 0.1, "above_chance": 0.09 },
+    "representation_probe": { "above_chance": 0.09 },
     "model_utility_loss": 1.6
   }
 };

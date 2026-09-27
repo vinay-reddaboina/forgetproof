@@ -23,13 +23,20 @@ from src.eval.metrics import sequence_loss
 
 
 def relearning_attack(unlearned_model, tokenizer, forget_ds, device="cuda",
-                       relearn_epochs=2, lr=2e-5, batch_size=4, holdout_frac=0.2):
+                       relearn_epochs=2, lr=2e-5, batch_size=4, holdout_frac=0.2,
+                       return_model=False, seed=42):
     """
     Returns:
         dict with pre-attack and post-attack mean loss on the held-out slice,
         plus a recovery score in [0, 1] (higher = attack recovered more).
+
+    return_model=True also returns the relearned (attacked) model and the
+    exact holdout_ds split used, as ("model", "holdout_ds") keys -- needed by
+    src/eval/pca_diagnostics.recovery_ratio_per_pc, which measures recovery
+    on the SAME held-out examples this attack was scored on, at the
+    representation level rather than just the output loss.
     """
-    relearn_ds, holdout_ds = held_out_split(forget_ds, holdout_frac=holdout_frac)
+    relearn_ds, holdout_ds = held_out_split(forget_ds, holdout_frac=holdout_frac, seed=seed)
 
     attack_model = copy.deepcopy(unlearned_model).to(device)
     attack_model.train()
@@ -65,10 +72,14 @@ def relearning_attack(unlearned_model, tokenizer, forget_ds, device="cuda",
     # pre-attack loss (0 = no recovery, 1 = loss went to ~0 i.e. full recall)
     recovery = max(0.0, min(1.0, (pre_loss - post_loss) / max(pre_loss, 1e-6)))
 
-    return {
+    result = {
         "pre_attack_holdout_loss": pre_loss,
         "post_attack_holdout_loss": post_loss,
         "recovery_score": recovery,
         "n_holdout": len(holdout_ds),
         "n_relearn": len(relearn_ds),
     }
+    if return_model:
+        result["model"] = attack_model
+        result["holdout_ds"] = holdout_ds
+    return result
