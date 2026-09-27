@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ForgetProof — Audit Results</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.8.1/prop-types.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.12.7/Recharts.min.js"></script>
+<script src="./data.js"></script>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --border: #2a2e37;
+    --text: #e8eaed;
+    --muted: #9aa0aa;
+    --accent: #5b8def;
+    --danger: #e55a5a;
+    --ok: #4caf82;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 24px;
+  }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 16px;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 16px 8px;
+  }
+  .panel h2 { font-size: 14px; margin: 0 0 4px; color: var(--text); }
+  .panel .desc { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 500; }
+  .legend-note { font-size: 12px; color: var(--muted); margin-top: 4px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } = Recharts;
+
+const METHOD_ORDER = ["grad_ascent", "grad_diff", "npo", "rc_npo"];
+const METHOD_LABEL = {
+  grad_ascent: "Gradient Ascent",
+  grad_diff: "Gradient Diff",
+  npo: "NPO",
+  rc_npo: "RC-NPO (ours)",
+};
+const METHOD_COLOR = {
+  grad_ascent: "#e55a5a",
+  grad_diff: "#e0a45b",
+  npo: "#5b8def",
+  rc_npo: "#4caf82",
+};
+
+function get(results, method, path, fallback = null) {
+  const r = results[method];
+  if (!r) return fallback;
+  let cur = r;
+  for (const key of path) {
+    if (cur == null) return fallback;
+    cur = cur[key];
+  }
+  return cur == null ? fallback : cur;
+}
+
+function buildRows(results, path) {
+  return METHOD_ORDER
+    .filter((m) => results[m])
+    .map((m) => ({
+      method: METHOD_LABEL[m],
+      key: m,
+      value: get(results, m, path, 0),
+    }));
+}
+
+function MetricChart({ title, desc, results, path, domainMax = 1 }) {
+  const data = buildRows(results, path);
+  if (data.length === 0) return null;
+  return (
+    <div className="panel">
+      <h2>{title}</h2>
+      <div className="desc">{desc}</div>
+      <ResponsiveContainer width="100%" height={220}>
+        <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#2a2e37" />
+          <XAxis dataKey="method" tick={{ fill: "#9aa0aa", fontSize: 12 }} />
+          <YAxis domain={[0, domainMax]} tick={{ fill: "#9aa0aa", fontSize: 12 }} />
+          <Tooltip
+            contentStyle={{ background: "#171a21", border: "1px solid #2a2e37", fontSize: 12 }}
+            labelStyle={{ color: "#e8eaed" }}
+          />
+          <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+            {data.map((d) => (
+              <Cell key={d.key} fill={METHOD_COLOR[d.key]} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function SummaryTable({ results }) {
+  const rows = METHOD_ORDER.filter((m) => results[m]).map((m) => ({
+    method: METHOD_LABEL[m],
+    rtt: get(results, m, ["relearning_attack", "recovery_score"]),
+    mia: get(results, m, ["membership_inference", "leak_score"]),
+    rephrase: get(results, m, ["rephrase_extraction", "leak_rate"]),
+    probe: get(results, m, ["representation_probe", "above_chance"]),
+    utility: get(results, m, ["model_utility_loss"]),
+  }));
+
+  const fmt = (v) => (v == null ? "—" : Number(v).toFixed(2));
+
+  return (
+    <div className="panel" style={{ gridColumn: "1 / -1" }}>
+      <h2>Summary</h2>
+      <div className="desc">
+        Lower is better on every attack column (less leaked/recovered). Utility loss should stay
+        low too — a method that "wins" the attack columns only by wrecking the model isn't a win.
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>RTT recovery</th>
+            <th>MIA leak</th>
+            <th>Rephrase leak rate</th>
+            <th>Probe (above chance)</th>
+            <th>Model utility loss</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.method}>
+              <td>{r.method}</td>
+              <td>{fmt(r.rtt)}</td>
+              <td>{fmt(r.mia)}</td>
+              <td>{fmt(r.rephrase)}</td>
+              <td>{fmt(r.probe)}</td>
+              <td>{fmt(r.utility)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function App() {
+  const results = window.FORGETPROOF_RESULTS || {};
+  const hasData = Object.keys(results).length > 0;
+
+  return (
+    <div>
+      <h1>ForgetProof — Audit Results</h1>
+      <div className="subtitle">
+        Does the model actually forget, or just stop saying it out loud? Each chart compares
+        how much of the "unlearned" forget-set data each method's audit attack could recover.
+      </div>
+      {!hasData && (
+        <div className="panel">
+          No results loaded. Run the Colab pipeline (notebooks/02_unlearn_and_audit.ipynb), then
+          run <code>python dashboard/build_data.py</code> to refresh this page.
+        </div>
+      )}
+      {hasData && (
+        <div className="grid">
+          <SummaryTable results={results} />
+          <MetricChart
+            title="Relearning attack (RTT) recovery score"
+            desc="After a few fine-tuning steps on 80% of the forget set, how much did the model recover on the held-out 20%? 1.0 = fully recovered, i.e. never really forgot."
+            results={results}
+            path={["relearning_attack", "recovery_score"]}
+          />
+          <MetricChart
+            title="Membership inference leak score"
+            desc="Is forget-set loss still distinguishable from genuinely unseen data? 0 = indistinguishable (looks forgotten), 1 = still clearly memorized."
+            results={results}
+            path={["membership_inference", "leak_score"]}
+          />
+          <MetricChart
+            title="Rephrase extraction leak rate"
+            desc="Fraction of paraphrased forget-set questions that still pulled out the correct answer."
+            results={results}
+            path={["rephrase_extraction", "leak_rate"]}
+          />
+          <MetricChart
+            title="Representation probe (accuracy above chance)"
+            desc="Can a linear probe on hidden states still tell forgotten entities apart? 0 = no better than guessing, i.e. representations are actually scrubbed."
+            results={results}
+            path={["representation_probe", "above_chance"]}
+          />
+          <MetricChart
+            title="Model utility loss (retain set)"
+            desc="Loss on data that should NOT be forgotten. Should stay low and similar across methods -- a method that scores well elsewhere by breaking the whole model isn't a real win."
+            results={results}
+            path={["model_utility_loss"]}
+            domainMax={5}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

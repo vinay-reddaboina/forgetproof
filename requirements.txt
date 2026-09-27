@@ -1,0 +1,13 @@
+torch>=2.2
+transformers>=4.42
+datasets>=2.19
+peft>=0.11
+accelerate>=0.30
+bitsandbytes>=0.43
+scikit-learn>=1.4
+numpy>=1.26
+pandas>=2.2
+matplotlib>=3.8
+sentencepiece
+einops
+tqdm
