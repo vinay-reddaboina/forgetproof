@@ -32,14 +32,15 @@ def rephrase_extraction_attack(model, tokenizer, paraphrased_examples, device="c
 
     for ex in paraphrased_examples:
         prompt = f"Question: {ex['paraphrased_question']}\nAnswer:"
-        input_ids = tokenizer(prompt, return_tensors="pt").input_ids.to(device)
+        enc = tokenizer(prompt, return_tensors="pt").to(device)
         out_ids = model.generate(
-            input_ids,
+            input_ids=enc.input_ids,
+            attention_mask=enc.attention_mask,
             max_new_tokens=max_new_tokens,
             do_sample=False,
             pad_token_id=tokenizer.eos_token_id,
         )
-        gen_text = tokenizer.decode(out_ids[0][input_ids.shape[1]:], skip_special_tokens=True)
+        gen_text = tokenizer.decode(out_ids[0][enc.input_ids.shape[1]:], skip_special_tokens=True)
         score = rouge_recall(gen_text, ex["answer"])
         scores.append(score)
         generations.append(gen_text)

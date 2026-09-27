@@ -1,5 +1,5 @@
 torch>=2.2
-transformers>=4.42
+transformers==4.46.3
 datasets>=2.19
 peft>=0.11
 accelerate>=0.30
