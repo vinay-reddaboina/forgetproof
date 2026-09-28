@@ -54,7 +54,17 @@ class _MinorComponentHook:
     def __call__(self, module, inputs, output):
         if not self.active:
             return None  # leave output unchanged
-        return project_minor_reconstruct(output, self.mean, self.components)
+        # mean/components come from mcu.py's collect_representations(), which
+        # explicitly upcasts to float32 for a numerically stable SVD. The
+        # model itself typically runs in float16, so project_minor_reconstruct
+        # (mean + ...) returns a float32 tensor here -- replacing this MLP
+        # module's real (float16) output with it would feed a float32
+        # activation into the next layer's (float16) LayerNorm and crash with
+        # "RuntimeError: expected scalar type Float but found Half". Cast
+        # back to the output's original dtype so downstream layers see the
+        # same dtype they would have without the hook.
+        reconstructed = project_minor_reconstruct(output, self.mean, self.components)
+        return reconstructed.to(output.dtype)
 
 
 def unlearn_npo_mcu(model, tokenizer, forget_ds, retain_ds, layer_idx=-1, lr=1e-5,
