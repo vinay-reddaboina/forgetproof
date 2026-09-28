@@ -18,6 +18,17 @@ TOFU_SPLIT_PAIRS = {
 }
 
 
+def load_tofu_full():
+    """Returns the 'full' TOFU split: all ~4000 QA pairs across all 200
+    fictitious authors, forget + retain combined, unsplit. Used only to build
+    our own 'target model' checkpoint for an architecture that has no
+    published TOFU-finetuned checkpoint (see src/finetune_target.py) --
+    mirrors what locuslab did to produce locuslab/tofu_ft_phi-1.5 in the
+    first place: finetune a base model on every author so it genuinely
+    'knows' all of them, including the ones we'll later try to unlearn."""
+    return load_dataset("locuslab/TOFU", "full")["train"]
+
+
 def load_tofu(forget_split: str = "forget10"):
     """Returns (forget_ds, retain_ds) for the given forget split name."""
     if forget_split not in TOFU_SPLIT_PAIRS:
