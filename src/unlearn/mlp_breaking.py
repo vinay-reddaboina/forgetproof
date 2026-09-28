@@ -28,7 +28,7 @@ from src.unlearn.mcu import extract_principal_components, project_minor, get_mlp
 
 
 def unlearn_mlp_breaking(model, tokenizer, forget_ds, retain_ds, layer_idx=-1, lr=1e-5,
-                          epochs=3, batch_size=4, retain_weight=1.0, device="cuda",
+                          epochs=3, batch_size=4, retain_weight=10.0, device="cuda",
                           use_mcu=False, mcu_k=8):
     model.to(device)
     ref_model = copy.deepcopy(model).to(device)
@@ -108,7 +108,9 @@ def unlearn_mlp_breaking(model, tokenizer, forget_ds, retain_ds, layer_idx=-1, l
                 with torch.no_grad():
                     ref_model(input_ids=r_ids, attention_mask=r_mask)
                     h_r_ref = captured["h_ref"]
-                retain_loss = ((h_r - h_r_ref) ** 2).sum(dim=-1).mean()
+                # mean (not sum) over the hidden dim -- same fp16-overflow
+                # fix as rmu.py's forget/retain loss (see that file's comment).
+                retain_loss = ((h_r - h_r_ref) ** 2).mean(dim=-1).mean()
 
                 loss = forget_loss + retain_weight * retain_loss
                 optim.zero_grad()
