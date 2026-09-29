@@ -28,8 +28,22 @@ def sequence_loss(model, tokenizer, question, answer, device="cuda"):
     labels = full_ids.clone()
     labels[:, : prompt_ids.shape[1]] = -100  # mask the prompt, score only the answer
 
-    out = model(full_ids, labels=labels)
-    return out.loss.item()
+    # Compute the loss manually with an explicit float32 upcast rather than
+    # relying on the model's internal `out.loss` (computed in the model's
+    # native fp16) -- a severely destabilized model (e.g. the output of
+    # unbounded gradient-ascent unlearning, whose own forget-loss can climb
+    # into the hundreds) can produce logits large enough that fp16 softmax
+    # overflows to nan here, same fp16-precision family as the squared-
+    # activation-diff losses fixed in src/unlearn/rmu.py and mlp_breaking.py.
+    # This was observed as post_attack_holdout_loss: NaN for grad_ascent's
+    # relearning-attack eval on a real Kaggle run.
+    out = model(full_ids)
+    logits = out.logits[:, :-1, :].float()
+    shift_labels = labels[:, 1:]
+    loss = F.cross_entropy(
+        logits.reshape(-1, logits.size(-1)), shift_labels.reshape(-1), ignore_index=-100
+    )
+    return loss.item()
 
 
 @torch.no_grad()
