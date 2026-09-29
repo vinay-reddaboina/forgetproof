@@ -72,10 +72,19 @@ def best_config_from_sweep(sweep_path="results/sweep.json", method="npo_mcu",
 
 def run_scale_check(base_model, tokenizer, device="cuda", out_path="results/scale_check.json",
                      ckpt_results_dir=None, forget_splits=FORGET_SPLITS,
-                     mcu_k=None, layer_idx=None):
-    if mcu_k is None or layer_idx is None:
-        mcu_k, layer_idx = best_config_from_sweep()
-    print(f"scale check using mcu_k={mcu_k}, layer_idx={layer_idx} (from sweep if available, else default)")
+                     configs_override=None):
+    """configs_override lets a caller pin a fixed (mcu_k, layer_idx) instead of
+    reading the sweep per pair, e.g. {"npo": (32, 2), "rmu": (32, 8)} -- by
+    default each pair uses ITS OWN best config from the sweep (pair_name +
+    "_mcu" as the sweep's method key), not one config shared across pairs."""
+    per_pair_config = {}
+    for pair_name in SCALE_CHECK_PAIRS:
+        if configs_override and pair_name in configs_override:
+            per_pair_config[pair_name] = configs_override[pair_name]
+        else:
+            per_pair_config[pair_name] = best_config_from_sweep(method=f"{pair_name}_mcu")
+        k, l = per_pair_config[pair_name]
+        print(f"scale check for '{pair_name}': using mcu_k={k}, layer_idx={l} (that pair's own sweep-best)")
 
     results = {}
     ckpt_path = os.path.join(ckpt_results_dir, "scale_check.json") if ckpt_results_dir else None
@@ -96,6 +105,7 @@ def run_scale_check(base_model, tokenizer, device="cuda", out_path="results/scal
             print(f"{key} -- already done, skipping")
             continue
 
+        mcu_k, layer_idx = per_pair_config[pair_name]
         print(f"{key} -- loading {split} and training...")
         forget_ds, retain_ds = load_tofu(split)
         model_copy = copy.deepcopy(base_model)
