@@ -1,20 +1,20 @@
 {
   "method": "mlp_breaking",
   "relearning_attack": {
-    "pre_attack_holdout_loss": 3.1684713803231714,
-    "post_attack_holdout_loss": 2.437161435559392,
-    "recovery_score": 0.23080844261537528,
+    "pre_attack_holdout_loss": 3.1492677219212055,
+    "post_attack_holdout_loss": 2.440015795454383,
+    "recovery_score": 0.2252116965254845,
     "n_holdout": 80,
     "n_relearn": 320
   },
   "membership_inference": {
-    "forget_mean_loss": 3.218963640332222,
-    "unseen_mean_loss": 7.586520130634308,
-    "gap": 4.367556490302086,
-    "leak_score": 0.5756995849343267
+    "forget_mean_loss": 3.205718120336533,
+    "unseen_mean_loss": 7.538525021076202,
+    "gap": 4.332806900739669,
+    "leak_score": 0.5747552589698928
   },
   "rephrase_extraction": {
-    "leak_rate": 0.08
+    "leak_rate": 0.06
   },
   "representation_probe": {
     "probe_accuracy": 0.9,
@@ -24,5 +24,5 @@
     "n_examples": 100,
     "layer": -1
   },
-  "model_utility_loss": 2.562661726474762
+  "model_utility_loss": 2.5490443336963655
 }

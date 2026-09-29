@@ -1,28 +1,28 @@
 {
   "method": "grad_diff",
   "relearning_attack": {
-    "pre_attack_holdout_loss": 3.715860813856125,
-    "post_attack_holdout_loss": 2.463369807228446,
-    "recovery_score": 0.33706617910909037,
+    "pre_attack_holdout_loss": 4.111749144643545,
+    "post_attack_holdout_loss": 2.4697523452341557,
+    "recovery_score": 0.3993426499640549,
     "n_holdout": 80,
     "n_relearn": 320
   },
   "membership_inference": {
-    "forget_mean_loss": 3.8192698821425437,
-    "unseen_mean_loss": 7.979723978042602,
-    "gap": 4.160454095900059,
-    "leak_score": 0.5213781964574423
+    "forget_mean_loss": 4.1624628227949145,
+    "unseen_mean_loss": 7.982694511413574,
+    "gap": 3.8202316886186596,
+    "leak_score": 0.4785641844563301
   },
   "rephrase_extraction": {
     "leak_rate": 0.04
   },
   "representation_probe": {
-    "probe_accuracy": 0.9,
+    "probe_accuracy": 0.9333333333333333,
     "chance_accuracy": 0.1,
-    "above_chance": 0.8,
+    "above_chance": 0.8333333333333334,
     "n_entities": 10,
     "n_examples": 100,
     "layer": -1
   },
-  "model_utility_loss": 2.8630212700366973
+  "model_utility_loss": 3.0829239070415495
 }

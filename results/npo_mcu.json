@@ -1,20 +1,20 @@
 {
   "method": "npo_mcu",
   "relearning_attack": {
-    "pre_attack_holdout_loss": 3.0729591958224773,
-    "post_attack_holdout_loss": 2.454300793632865,
-    "recovery_score": 0.20132333778809852,
+    "pre_attack_holdout_loss": 3.27747655287385,
+    "post_attack_holdout_loss": 2.4353710778057573,
+    "recovery_score": 0.25693714706507775,
     "n_holdout": 80,
     "n_relearn": 320
   },
   "membership_inference": {
-    "forget_mean_loss": 3.1373670734465122,
-    "unseen_mean_loss": 8.348129899501801,
-    "gap": 5.210762826055289,
-    "leak_score": 0.6241832468809878
+    "forget_mean_loss": 3.289759791493416,
+    "unseen_mean_loss": 8.806549365520477,
+    "gap": 5.516789574027061,
+    "leak_score": 0.626441679374043
   },
   "rephrase_extraction": {
-    "leak_rate": 0.06
+    "leak_rate": 0.02
   },
   "representation_probe": {
     "probe_accuracy": 0.9,
@@ -24,5 +24,5 @@
     "n_examples": 100,
     "layer": -1
   },
-  "model_utility_loss": 2.509787222146988
+  "model_utility_loss": 2.621608644723892
 }

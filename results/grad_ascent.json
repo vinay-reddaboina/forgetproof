@@ -1,28 +1,28 @@
 {
   "method": "grad_ascent",
   "relearning_attack": {
-    "pre_attack_holdout_loss": 95.8921875,
-    "post_attack_holdout_loss": NaN,
-    "recovery_score": 1,
+    "pre_attack_holdout_loss": 129.51382417678832,
+    "post_attack_holdout_loss": 3.906207504868507,
+    "recovery_score": 0.9698394551338668,
     "n_holdout": 80,
     "n_relearn": 320
   },
   "membership_inference": {
-    "forget_mean_loss": 95.7753125,
-    "unseen_mean_loss": 94.50375,
-    "gap": -1.2715625000000017,
+    "forget_mean_loss": 129.35291923522948,
+    "unseen_mean_loss": 128.33630271911622,
+    "gap": -1.0166165161132596,
     "leak_score": 0
   },
   "rephrase_extraction": {
     "leak_rate": 0
   },
   "representation_probe": {
-    "probe_accuracy": 0.6666666666666666,
+    "probe_accuracy": 0.7666666666666667,
     "chance_accuracy": 0.1,
-    "above_chance": 0.5666666666666667,
+    "above_chance": 0.6666666666666667,
     "n_entities": 10,
     "n_examples": 100,
     "layer": -1
   },
-  "model_utility_loss": 106.35625
+  "model_utility_loss": 141.92388671875
 }
