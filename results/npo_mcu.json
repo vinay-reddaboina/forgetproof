@@ -1,0 +1,28 @@
+{
+  "method": "npo_mcu",
+  "relearning_attack": {
+    "pre_attack_holdout_loss": 3.122772216796875,
+    "post_attack_holdout_loss": 2.4457061767578123,
+    "recovery_score": 0.21681569869145,
+    "n_holdout": 80,
+    "n_relearn": 320
+  },
+  "membership_inference": {
+    "forget_mean_loss": 3.20739501953125,
+    "unseen_mean_loss": 8.53955078125,
+    "gap": 5.3321557617187505,
+    "leak_score": 0.6244070558636858
+  },
+  "rephrase_extraction": {
+    "leak_rate": 0.06
+  },
+  "representation_probe": {
+    "probe_accuracy": 0.9,
+    "chance_accuracy": 0.1,
+    "above_chance": 0.8,
+    "n_entities": 10,
+    "n_examples": 100,
+    "layer": -1
+  },
+  "model_utility_loss": 2.5396875
+}

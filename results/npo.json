@@ -1,0 +1,28 @@
+{
+  "method": "npo",
+  "relearning_attack": {
+    "pre_attack_holdout_loss": 2.96800537109375,
+    "post_attack_holdout_loss": 2.440960693359375,
+    "recovery_score": 0.1775753786928466,
+    "n_holdout": 80,
+    "n_relearn": 320
+  },
+  "membership_inference": {
+    "forget_mean_loss": 3.01687744140625,
+    "unseen_mean_loss": 7.25802734375,
+    "gap": 4.24114990234375,
+    "leak_score": 0.5843392014768131
+  },
+  "rephrase_extraction": {
+    "leak_rate": 0.08
+  },
+  "representation_probe": {
+    "probe_accuracy": 0.9333333333333333,
+    "chance_accuracy": 0.1,
+    "above_chance": 0.8333333333333334,
+    "n_entities": 10,
+    "n_examples": 100,
+    "layer": -1
+  },
+  "model_utility_loss": 2.37927734375
+}

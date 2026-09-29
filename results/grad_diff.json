@@ -1,0 +1,28 @@
+{
+  "method": "grad_diff",
+  "relearning_attack": {
+    "pre_attack_holdout_loss": 4.0948974609375,
+    "post_attack_holdout_loss": 2.4492919921875,
+    "recovery_score": 0.4018673201094637,
+    "n_holdout": 80,
+    "n_relearn": 320
+  },
+  "membership_inference": {
+    "forget_mean_loss": 4.12750244140625,
+    "unseen_mean_loss": 8.0503125,
+    "gap": 3.9228100585937504,
+    "leak_score": 0.4872866809324172
+  },
+  "rephrase_extraction": {
+    "leak_rate": 0.04
+  },
+  "representation_probe": {
+    "probe_accuracy": 0.9333333333333333,
+    "chance_accuracy": 0.1,
+    "above_chance": 0.8333333333333334,
+    "n_entities": 10,
+    "n_examples": 100,
+    "layer": -1
+  },
+  "model_utility_loss": 3.093447265625
+}

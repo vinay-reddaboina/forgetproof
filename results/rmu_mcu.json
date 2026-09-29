@@ -1,0 +1,28 @@
+{
+  "method": "rmu_mcu",
+  "relearning_attack": {
+    "pre_attack_holdout_loss": 3.11839599609375,
+    "post_attack_holdout_loss": 2.4168670654296873,
+    "recovery_score": 0.22496467143455515,
+    "n_holdout": 80,
+    "n_relearn": 320
+  },
+  "membership_inference": {
+    "forget_mean_loss": 3.19432373046875,
+    "unseen_mean_loss": 7.44853515625,
+    "gap": 4.25421142578125,
+    "leak_score": 0.5711473916064662
+  },
+  "rephrase_extraction": {
+    "leak_rate": 0.06
+  },
+  "representation_probe": {
+    "probe_accuracy": 0.9,
+    "chance_accuracy": 0.1,
+    "above_chance": 0.8,
+    "n_entities": 10,
+    "n_examples": 100,
+    "layer": -1
+  },
+  "model_utility_loss": 2.5508984375
+}
