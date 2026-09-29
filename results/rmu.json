@@ -1,28 +1,28 @@
 {
   "method": "rmu",
   "relearning_attack": {
-    "pre_attack_holdout_loss": 3.01138916015625,
-    "post_attack_holdout_loss": 2.4172119140625,
-    "recovery_score": 0.19731001690360084,
+    "pre_attack_holdout_loss": 3.0991216622292996,
+    "post_attack_holdout_loss": 2.436553507298231,
+    "recovery_score": 0.21379223765434938,
     "n_holdout": 80,
     "n_relearn": 320
   },
   "membership_inference": {
-    "forget_mean_loss": 3.079305419921875,
-    "unseen_mean_loss": 7.2528515625,
-    "gap": 4.173546142578125,
-    "leak_score": 0.5754352073268596
+    "forget_mean_loss": 3.1565365044772626,
+    "unseen_mean_loss": 7.396145572662354,
+    "gap": 4.239609068185091,
+    "leak_score": 0.5732187159559895
   },
   "rephrase_extraction": {
-    "leak_rate": 0.06
+    "leak_rate": 0.12
   },
   "representation_probe": {
-    "probe_accuracy": 0.9333333333333333,
+    "probe_accuracy": 0.9,
     "chance_accuracy": 0.1,
-    "above_chance": 0.8333333333333334,
+    "above_chance": 0.8,
     "n_entities": 10,
     "n_examples": 100,
     "layer": -1
   },
-  "model_utility_loss": 2.490556640625
+  "model_utility_loss": 2.5461077761650084
 }

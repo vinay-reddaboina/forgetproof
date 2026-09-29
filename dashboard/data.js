@@ -31,129 +31,129 @@ window.FORGETPROOF_RESULTS = {
   "grad_diff": {
     "method": "grad_diff",
     "relearning_attack": {
-      "pre_attack_holdout_loss": 4.0948974609375,
-      "post_attack_holdout_loss": 2.4492919921875,
-      "recovery_score": 0.4018673201094637,
+      "pre_attack_holdout_loss": 3.715860813856125,
+      "post_attack_holdout_loss": 2.463369807228446,
+      "recovery_score": 0.33706617910909037,
       "n_holdout": 80,
       "n_relearn": 320
     },
     "membership_inference": {
-      "forget_mean_loss": 4.12750244140625,
-      "unseen_mean_loss": 8.0503125,
-      "gap": 3.9228100585937504,
-      "leak_score": 0.4872866809324172
+      "forget_mean_loss": 3.8192698821425437,
+      "unseen_mean_loss": 7.979723978042602,
+      "gap": 4.160454095900059,
+      "leak_score": 0.5213781964574423
     },
     "rephrase_extraction": {
       "leak_rate": 0.04
     },
     "representation_probe": {
-      "probe_accuracy": 0.9333333333333333,
+      "probe_accuracy": 0.9,
       "chance_accuracy": 0.1,
-      "above_chance": 0.8333333333333334,
+      "above_chance": 0.8,
       "n_entities": 10,
       "n_examples": 100,
       "layer": -1
     },
-    "model_utility_loss": 3.093447265625
+    "model_utility_loss": 2.8630212700366973
   },
   "mlp_breaking": {
     "method": "mlp_breaking",
     "relearning_attack": {
-      "pre_attack_holdout_loss": 3.084332275390625,
-      "post_attack_holdout_loss": 2.4230621337890623,
-      "recovery_score": 0.21439653142358467,
+      "pre_attack_holdout_loss": 3.1684713803231714,
+      "post_attack_holdout_loss": 2.437161435559392,
+      "recovery_score": 0.23080844261537528,
       "n_holdout": 80,
       "n_relearn": 320
     },
     "membership_inference": {
-      "forget_mean_loss": 3.141346435546875,
-      "unseen_mean_loss": 7.4398828125,
-      "gap": 4.298536376953125,
-      "leak_score": 0.5777693661694521
-    },
-    "rephrase_extraction": {
-      "leak_rate": 0.06
-    },
-    "representation_probe": {
-      "probe_accuracy": 0.9,
-      "chance_accuracy": 0.1,
-      "above_chance": 0.8,
-      "n_entities": 10,
-      "n_examples": 100,
-      "layer": -1
-    },
-    "model_utility_loss": 2.510634765625
-  },
-  "mlp_breaking_mcu": {
-    "method": "mlp_breaking_mcu",
-    "relearning_attack": {
-      "pre_attack_holdout_loss": 3.057562255859375,
-      "post_attack_holdout_loss": 2.426446533203125,
-      "recovery_score": 0.20641140550672615,
-      "n_holdout": 80,
-      "n_relearn": 320
-    },
-    "membership_inference": {
-      "forget_mean_loss": 3.1441552734375,
-      "unseen_mean_loss": 7.4287109375,
-      "gap": 4.2845556640625,
-      "leak_score": 0.5767562771131852
-    },
-    "rephrase_extraction": {
-      "leak_rate": 0.06
-    },
-    "representation_probe": {
-      "probe_accuracy": 0.9,
-      "chance_accuracy": 0.1,
-      "above_chance": 0.8,
-      "n_entities": 10,
-      "n_examples": 100,
-      "layer": -1
-    },
-    "model_utility_loss": 2.504560546875
-  },
-  "npo": {
-    "method": "npo",
-    "relearning_attack": {
-      "pre_attack_holdout_loss": 2.96800537109375,
-      "post_attack_holdout_loss": 2.440960693359375,
-      "recovery_score": 0.1775753786928466,
-      "n_holdout": 80,
-      "n_relearn": 320
-    },
-    "membership_inference": {
-      "forget_mean_loss": 3.01687744140625,
-      "unseen_mean_loss": 7.25802734375,
-      "gap": 4.24114990234375,
-      "leak_score": 0.5843392014768131
+      "forget_mean_loss": 3.218963640332222,
+      "unseen_mean_loss": 7.586520130634308,
+      "gap": 4.367556490302086,
+      "leak_score": 0.5756995849343267
     },
     "rephrase_extraction": {
       "leak_rate": 0.08
     },
     "representation_probe": {
-      "probe_accuracy": 0.9333333333333333,
+      "probe_accuracy": 0.9,
       "chance_accuracy": 0.1,
-      "above_chance": 0.8333333333333334,
+      "above_chance": 0.8,
       "n_entities": 10,
       "n_examples": 100,
       "layer": -1
     },
-    "model_utility_loss": 2.37927734375
+    "model_utility_loss": 2.562661726474762
+  },
+  "mlp_breaking_mcu": {
+    "method": "mlp_breaking_mcu",
+    "relearning_attack": {
+      "pre_attack_holdout_loss": 3.1355536848306658,
+      "post_attack_holdout_loss": 2.446532153338194,
+      "recovery_score": 0.21974477261411712,
+      "n_holdout": 80,
+      "n_relearn": 320
+    },
+    "membership_inference": {
+      "forget_mean_loss": 3.21512527808547,
+      "unseen_mean_loss": 7.570694584846496,
+      "gap": 4.355569306761026,
+      "leak_score": 0.5753196431248375
+    },
+    "rephrase_extraction": {
+      "leak_rate": 0.06
+    },
+    "representation_probe": {
+      "probe_accuracy": 0.9,
+      "chance_accuracy": 0.1,
+      "above_chance": 0.8,
+      "n_entities": 10,
+      "n_examples": 100,
+      "layer": -1
+    },
+    "model_utility_loss": 2.550968894958496
+  },
+  "npo": {
+    "method": "npo",
+    "relearning_attack": {
+      "pre_attack_holdout_loss": 2.977987612038851,
+      "post_attack_holdout_loss": 2.456431710720062,
+      "recovery_score": 0.17513702851225443,
+      "n_holdout": 80,
+      "n_relearn": 320
+    },
+    "membership_inference": {
+      "forget_mean_loss": 3.070324583649635,
+      "unseen_mean_loss": 7.214908015727997,
+      "gap": 4.144583432078361,
+      "leak_score": 0.5744471617716342
+    },
+    "rephrase_extraction": {
+      "leak_rate": 0.06
+    },
+    "representation_probe": {
+      "probe_accuracy": 0.9,
+      "chance_accuracy": 0.1,
+      "above_chance": 0.8,
+      "n_entities": 10,
+      "n_examples": 100,
+      "layer": -1
+    },
+    "model_utility_loss": 2.407433640956879
   },
   "npo_mcu": {
     "method": "npo_mcu",
     "relearning_attack": {
-      "pre_attack_holdout_loss": 3.122772216796875,
-      "post_attack_holdout_loss": 2.4457061767578123,
-      "recovery_score": 0.21681569869145,
+      "pre_attack_holdout_loss": 3.0729591958224773,
+      "post_attack_holdout_loss": 2.454300793632865,
+      "recovery_score": 0.20132333778809852,
       "n_holdout": 80,
       "n_relearn": 320
     },
     "membership_inference": {
-      "forget_mean_loss": 3.20739501953125,
-      "unseen_mean_loss": 8.53955078125,
-      "gap": 5.3321557617187505,
-      "leak_score": 0.6244070558636858
+      "forget_mean_loss": 3.1373670734465122,
+      "unseen_mean_loss": 8.348129899501801,
+      "gap": 5.210762826055289,
+      "leak_score": 0.6241832468809878
     },
     "rephrase_extraction": {
       "leak_rate": 0.06
@@ -166,53 +166,25 @@ window.FORGETPROOF_RESULTS = {
       "n_examples": 100,
       "layer": -1
     },
-    "model_utility_loss": 2.5396875
+    "model_utility_loss": 2.509787222146988
   },
   "rmu": {
     "method": "rmu",
     "relearning_attack": {
-      "pre_attack_holdout_loss": 3.01138916015625,
-      "post_attack_holdout_loss": 2.4172119140625,
-      "recovery_score": 0.19731001690360084,
+      "pre_attack_holdout_loss": 3.0991216622292996,
+      "post_attack_holdout_loss": 2.436553507298231,
+      "recovery_score": 0.21379223765434938,
       "n_holdout": 80,
       "n_relearn": 320
     },
     "membership_inference": {
-      "forget_mean_loss": 3.079305419921875,
-      "unseen_mean_loss": 7.2528515625,
-      "gap": 4.173546142578125,
-      "leak_score": 0.5754352073268596
+      "forget_mean_loss": 3.1565365044772626,
+      "unseen_mean_loss": 7.396145572662354,
+      "gap": 4.239609068185091,
+      "leak_score": 0.5732187159559895
     },
     "rephrase_extraction": {
-      "leak_rate": 0.06
-    },
-    "representation_probe": {
-      "probe_accuracy": 0.9333333333333333,
-      "chance_accuracy": 0.1,
-      "above_chance": 0.8333333333333334,
-      "n_entities": 10,
-      "n_examples": 100,
-      "layer": -1
-    },
-    "model_utility_loss": 2.490556640625
-  },
-  "rmu_mcu": {
-    "method": "rmu_mcu",
-    "relearning_attack": {
-      "pre_attack_holdout_loss": 3.11839599609375,
-      "post_attack_holdout_loss": 2.4168670654296873,
-      "recovery_score": 0.22496467143455515,
-      "n_holdout": 80,
-      "n_relearn": 320
-    },
-    "membership_inference": {
-      "forget_mean_loss": 3.19432373046875,
-      "unseen_mean_loss": 7.44853515625,
-      "gap": 4.25421142578125,
-      "leak_score": 0.5711473916064662
-    },
-    "rephrase_extraction": {
-      "leak_rate": 0.06
+      "leak_rate": 0.12
     },
     "representation_probe": {
       "probe_accuracy": 0.9,
@@ -222,6 +194,34 @@ window.FORGETPROOF_RESULTS = {
       "n_examples": 100,
       "layer": -1
     },
-    "model_utility_loss": 2.5508984375
+    "model_utility_loss": 2.5461077761650084
+  },
+  "rmu_mcu": {
+    "method": "rmu_mcu",
+    "relearning_attack": {
+      "pre_attack_holdout_loss": 3.2066156499087812,
+      "post_attack_holdout_loss": 2.4370099019259213,
+      "recovery_score": 0.24000561090156003,
+      "n_holdout": 80,
+      "n_relearn": 320
+    },
+    "membership_inference": {
+      "forget_mean_loss": 3.274193023145199,
+      "unseen_mean_loss": 7.576803176403046,
+      "gap": 4.302610153257847,
+      "leak_score": 0.5678661637480249
+    },
+    "rephrase_extraction": {
+      "leak_rate": 0.04
+    },
+    "representation_probe": {
+      "probe_accuracy": 0.9,
+      "chance_accuracy": 0.1,
+      "above_chance": 0.8,
+      "n_entities": 10,
+      "n_examples": 100,
+      "layer": -1
+    },
+    "model_utility_loss": 2.6061188864707945
   }
 };

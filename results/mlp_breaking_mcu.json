@@ -1,17 +1,17 @@
 {
   "method": "mlp_breaking_mcu",
   "relearning_attack": {
-    "pre_attack_holdout_loss": 3.057562255859375,
-    "post_attack_holdout_loss": 2.426446533203125,
-    "recovery_score": 0.20641140550672615,
+    "pre_attack_holdout_loss": 3.1355536848306658,
+    "post_attack_holdout_loss": 2.446532153338194,
+    "recovery_score": 0.21974477261411712,
     "n_holdout": 80,
     "n_relearn": 320
   },
   "membership_inference": {
-    "forget_mean_loss": 3.1441552734375,
-    "unseen_mean_loss": 7.4287109375,
-    "gap": 4.2845556640625,
-    "leak_score": 0.5767562771131852
+    "forget_mean_loss": 3.21512527808547,
+    "unseen_mean_loss": 7.570694584846496,
+    "gap": 4.355569306761026,
+    "leak_score": 0.5753196431248375
   },
   "rephrase_extraction": {
     "leak_rate": 0.06
@@ -24,5 +24,5 @@
     "n_examples": 100,
     "layer": -1
   },
-  "model_utility_loss": 2.504560546875
+  "model_utility_loss": 2.550968894958496
 }
