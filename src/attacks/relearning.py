@@ -17,6 +17,7 @@ Protocol:
 
 import copy
 import torch
+import torch.nn.functional as F
 import bitsandbytes as bnb
 from torch.utils.data import DataLoader
 from src.data_utils import format_qa, held_out_split
@@ -61,9 +62,27 @@ def relearning_attack(unlearned_model, tokenizer, forget_ds, device="cuda",
         for batch in loader:
             ids = batch["input_ids"].to(device)
             mask = batch["attention_mask"].to(device)
-            out = attack_model(input_ids=ids, attention_mask=mask, labels=ids)
+            # Computed manually with a float32 upcast + gradient clipping,
+            # rather than trusting the model's native-fp16 out.loss with no
+            # clipping -- this is the RELEARNING step's own training loss,
+            # separate from (and upstream of) sequence_loss's eval-time fix.
+            # grad_ascent's output model is already severely destabilized
+            # (its own forget-loss climbs into the hundreds by design), and
+            # fine-tuning that starting point with an unclipped fp16 loss is
+            # exactly what was overflowing to nan/inf here, poisoning the
+            # model's weights permanently -- no downstream eval-side upcast
+            # can rescue a forward pass through nan weights. This was
+            # observed as post_attack_holdout_loss: NaN for grad_ascent on
+            # two separate real Kaggle runs, the second one AFTER the
+            # sequence_loss fix alone, confirming that fix wasn't sufficient
+            # on its own.
+            out = attack_model(input_ids=ids, attention_mask=mask)
+            logits = out.logits[:, :-1, :].float()
+            shift_labels = ids[:, 1:]
+            loss = F.cross_entropy(logits.reshape(-1, logits.size(-1)), shift_labels.reshape(-1))
             optim.zero_grad()
-            out.loss.backward()
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(attack_model.parameters(), max_norm=1.0)
             optim.step()
 
     attack_model.eval()
