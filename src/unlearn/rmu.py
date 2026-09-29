@@ -94,7 +94,15 @@ def unlearn_rmu(model, tokenizer, forget_ds, retain_ds, layer_idx=-1, c=6.0, lr=
                 # 768-wide hidden state let this overflow fp16 range (max
                 # ~65504): observed forget=59488 on epoch 1, then nan on
                 # epoch 2 once the overflow hit inf and produced nan grads.
-                forget_loss = ((h_loss_input - c * u) ** 2).mean(dim=-1).mean()
+                # .float() upcast BEFORE squaring: h/u can individually be
+                # fp16 (raw model activations), and a fp16-vs-fp16 squared
+                # difference can overflow per-element before mean() even
+                # runs. Without use_mcu, this got lucky by accident (u's
+                # dtype defaults to fp32, so `h - c*u` auto-promoted) -- but
+                # that's not something to rely on, see retain_loss below
+                # which has no such accidental rescue and DID overflow to
+                # inf on every epoch even after the mean() fix.
+                forget_loss = ((h_loss_input.float() - c * u) ** 2).mean(dim=-1).mean()
 
                 try:
                     r_batch = next(retain_iter)
@@ -109,7 +117,12 @@ def unlearn_rmu(model, tokenizer, forget_ds, retain_ds, layer_idx=-1, c=6.0, lr=
                 with torch.no_grad():
                     ref_model(input_ids=r_ids, attention_mask=r_mask)
                     h_r_ref = captured["h_ref"]
-                retain_loss = ((h_r - h_r_ref) ** 2).mean(dim=-1).mean()
+                # Both h_r and h_r_ref are raw fp16 model activations with no
+                # fp32 constant mixed in -- no accidental dtype promotion to
+                # save this one, so the .float() upcast is load-bearing here
+                # (this is the retain_loss that showed up as `inf` on every
+                # epoch in the Kaggle run even after the mean-not-sum fix).
+                retain_loss = ((h_r.float() - h_r_ref.float()) ** 2).mean(dim=-1).mean()
 
                 loss = forget_loss + retain_weight * retain_loss
                 optim.zero_grad()

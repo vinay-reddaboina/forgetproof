@@ -86,13 +86,24 @@ def unlearn_mlp_breaking(model, tokenizer, forget_ds, retain_ds, layer_idx=-1, l
                     h_o = captured["h_ref"]
 
                 if use_mcu:
+                    # project_minor's mean/components are fp32 (see mcu.py's
+                    # collect_representations), so h - mean auto-promotes its
+                    # output to fp32 here -- that's the only reason the MCU
+                    # path (mlp_breaking_mcu) didn't hit the bug below.
                     h_cmp = project_minor(h, mcu_stats["mean"], mcu_stats["components"])
                     h_o_cmp = project_minor(h_o, mcu_stats["mean"], mcu_stats["components"])
                 else:
+                    # Both raw fp16 activations, no fp32 mixed in -- no such
+                    # accidental promotion, so the explicit .float() below is
+                    # load-bearing (this path is what produced forget=nan on
+                    # the Kaggle run: inner and norm_sq both overflowed fp16
+                    # to inf, and inf/inf = nan).
                     h_cmp, h_o_cmp = h, h_o
 
-                inner = (h_cmp * h_o_cmp).sum(dim=-1)
-                norm_sq = (h_o_cmp ** 2).sum(dim=-1).clamp(min=1e-6)
+                h_cmp_f = h_cmp.float()
+                h_o_cmp_f = h_o_cmp.float()
+                inner = (h_cmp_f * h_o_cmp_f).sum(dim=-1)
+                norm_sq = (h_o_cmp_f ** 2).sum(dim=-1).clamp(min=1e-6)
                 forget_loss = torch.relu(inner / norm_sq).mean()
 
                 try:
@@ -108,9 +119,11 @@ def unlearn_mlp_breaking(model, tokenizer, forget_ds, retain_ds, layer_idx=-1, l
                 with torch.no_grad():
                     ref_model(input_ids=r_ids, attention_mask=r_mask)
                     h_r_ref = captured["h_ref"]
-                # mean (not sum) over the hidden dim -- same fp16-overflow
-                # fix as rmu.py's forget/retain loss (see that file's comment).
-                retain_loss = ((h_r - h_r_ref) ** 2).mean(dim=-1).mean()
+                # mean (not sum) over the hidden dim, PLUS .float() upcast
+                # before squaring -- same fp16-overflow fix as rmu.py's
+                # retain_loss (see that file's comment); this is what showed
+                # up as retain=inf on every epoch in the Kaggle run.
+                retain_loss = ((h_r.float() - h_r_ref.float()) ** 2).mean(dim=-1).mean()
 
                 loss = forget_loss + retain_weight * retain_loss
                 optim.zero_grad()
