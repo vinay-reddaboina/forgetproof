@@ -28,9 +28,28 @@ def generate_answer(model, tokenizer, question, device, max_new_tokens=30):
     with torch.no_grad():
         out = model.generate(
             ids, max_new_tokens=max_new_tokens, do_sample=False,
+            no_repeat_ngram_size=3,  # avoids degenerate "word word word" loops in greedy decoding
             pad_token_id=tokenizer.eos_token_id,
         )
     return tokenizer.decode(out[0][ids.shape[1]:], skip_special_tokens=True).strip()
+
+
+def pick_best_example(target_model, tokenizer, forget_ds, device, candidate_indices):
+    """Scans a few candidate questions and returns the index where the target
+    model is most confident (lowest sequence_loss) -- cheap (forward pass
+    only, no generation/training), so we don't waste the expensive attack
+    step on a question the fresh target model happened to undertrain on."""
+    target_model.to(device)
+    scored = []
+    for idx in candidate_indices:
+        ex = forget_ds[idx]
+        loss = sequence_loss(target_model, tokenizer, ex["question"], ex["answer"], device)
+        scored.append((loss, idx))
+        print(f"  candidate idx={idx} target confusion={loss:.2f}: {ex['question']}")
+    scored.sort(key=lambda t: t[0])
+    best_loss, best_idx = scored[0]
+    print(f"  picked idx={best_idx} (confusion {best_loss:.2f})\n")
+    return best_idx
 
 
 def relearning_attack_live(unlearned_model, tokenizer, relearn_ds, device,
@@ -61,15 +80,25 @@ def relearning_attack_live(unlearned_model, tokenizer, relearn_ds, device,
 
 
 def run_live_demo(target_model, unlearned_models, tokenizer, forget_ds,
-                   device="cuda", example_idx=0, out_path="results/live_demo.json"):
+                   device="cuda", example_idx=None, out_path="results/live_demo.json"):
     """
     target_model: the real, fully-finetuned "knows everything" model.
     unlearned_models: dict like {"npo": model, "npo_mcu": model} -- the
         real post-unlearning checkpoints (already on `device` or not, both fine).
+    example_idx: which forget10 question to demo. If None, scans the first
+        question of each of the first 10 authors (indices 0, 20, 40, ...) and
+        picks the one the target model is most confident on.
     """
     print("=" * 70)
     print("FORGETPROOF LIVE DEMO -- real target model + real unlearned checkpoints")
     print("=" * 70)
+
+    if example_idx is None:
+        print("\nScanning a few candidate questions for one the target model knows well...")
+        example_idx = pick_best_example(
+            target_model, tokenizer, forget_ds, device,
+            candidate_indices=[i * 20 for i in range(min(10, len(forget_ds) // 20))],
+        )
 
     example = forget_ds[example_idx]
     question, answer = example["question"], example["answer"]
