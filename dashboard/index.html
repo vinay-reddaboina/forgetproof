@@ -187,6 +187,56 @@ function SummaryTable({ results }) {
   );
 }
 
+function ScaleCheckChart({ results }) {
+  const scaleCheck = results.scale_check;
+  if (!scaleCheck) return null;
+
+  const SPLITS = ["forget01", "forget05", "forget10"];
+  const PAIRS = [
+    { key: "npo", label: "NPO", color: "#eab308", mcuColor: "#22c55e" },
+    { key: "rmu", label: "RMU", color: "#f43f5e", mcuColor: "#14b8a6" },
+  ];
+
+  return (
+    <div className="panel" style={{ gridColumn: "1 / -1" }}>
+      <h2>Scale check: does the MCU effect hold across forget-set size?</h2>
+      <div className="desc">
+        RTT recovery_score for each pair's baseline vs. its own sweep-tuned MCU config, across
+        TOFU's forget01/05/10 splits (Kaggle Version 14, corrected). Lower is better. npo_mcu's
+        sweep-winning config (k=32, layer=2) only beats baseline at forget10 — the scale it was
+        tuned on — and is worse at forget01/forget05. rmu_mcu (k=32, layer=8) lands essentially
+        tied with baseline at every scale.
+      </div>
+      {PAIRS.map((pair) => {
+        const data = SPLITS.map((split) => ({
+          split,
+          baseline: scaleCheck[`${split}__${pair.key}__baseline`]?.recovery_score ?? null,
+          mcu: scaleCheck[`${split}__${pair.key}__mcu`]?.recovery_score ?? null,
+        }));
+        return (
+          <div key={pair.key} style={{ marginTop: 12 }}>
+            <div style={{ fontSize: 12, color: "#9aa0aa", marginBottom: 4 }}>{pair.label}</div>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#2a2e37" />
+                <XAxis dataKey="split" tick={{ fill: "#9aa0aa", fontSize: 12 }} />
+                <YAxis domain={[0, 0.4]} tick={{ fill: "#9aa0aa", fontSize: 12 }} />
+                <Tooltip
+                  contentStyle={{ background: "#171a21", border: "1px solid #2a2e37", fontSize: 12 }}
+                  labelStyle={{ color: "#e8eaed" }}
+                />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Bar dataKey="baseline" name={`${pair.label} baseline`} fill={pair.color} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="mcu" name={`${pair.label} + MCU (tuned)`} fill={pair.mcuColor} radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function App() {
   const results = window.FORGETPROOF_RESULTS || {};
   const hasData = Object.keys(results).length > 0;
@@ -207,6 +257,7 @@ function App() {
       {hasData && (
         <div className="grid">
           <SummaryTable results={results} />
+          <ScaleCheckChart results={results} />
           <MetricChart
             title="Relearning attack (RTT) recovery score"
             desc="After a few fine-tuning steps on 80% of the forget set, how much did the model recover on the held-out 20%? 1.0 = fully recovered, i.e. never really forgot."
