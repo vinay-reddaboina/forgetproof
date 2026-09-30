@@ -1,0 +1,13 @@
+{
+  "id": "vinayreddaboina/forgetproof-live-demo",
+  "title": "ForgetProof Live Demo",
+  "code_file": "live_demo_kernel.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": [],
+  "kernel_sources": ["vinayreddaboina/forgetproof-unlearn-audit-kaggle"],
+  "model_sources": []
+}
