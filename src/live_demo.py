@@ -24,14 +24,16 @@ from src.eval.metrics import sequence_loss
 def generate_answer(model, tokenizer, question, device, max_new_tokens=30):
     model.eval()
     prompt = f"Question: {question}\nAnswer:"
-    ids = tokenizer(prompt, return_tensors="pt").input_ids.to(device)
+    enc = tokenizer(prompt, return_tensors="pt").to(device)
     with torch.no_grad():
         out = model.generate(
-            ids, max_new_tokens=max_new_tokens, do_sample=False,
+            input_ids=enc.input_ids,
+            attention_mask=enc.attention_mask,  # silences the pad==eos ambiguity warning
+            max_new_tokens=max_new_tokens, do_sample=False,
             no_repeat_ngram_size=3,  # avoids degenerate "word word word" loops in greedy decoding
             pad_token_id=tokenizer.eos_token_id,
         )
-    return tokenizer.decode(out[0][ids.shape[1]:], skip_special_tokens=True).strip()
+    return tokenizer.decode(out[0][enc.input_ids.shape[1]:], skip_special_tokens=True).strip()
 
 
 def pick_best_example(target_model, tokenizer, forget_ds, device, candidate_indices):
